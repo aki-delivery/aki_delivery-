@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0d10">
+<title>AKI DELIVERY | إرسال الموقع</title>
+<style>
+:root{--orange:#ff3b16;--orange2:#ff6a00;--dark:#0b0d10;--muted:#8e949c;--line:#242931}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Arial,"Noto Sans Arabic",sans-serif;background:radial-gradient(circle at 50% 0%,#252a31 0,#0b0d10 48%,#050608 100%);color:#fff;padding:18px;display:flex;align-items:center;justify-content:center}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(255,59,22,.08),transparent 35%,rgba(255,106,0,.05));}
+.card{position:relative;width:min(100%,460px);background:rgba(17,20,24,.94);border:1px solid rgba(255,255,255,.09);border-radius:28px;padding:18px 18px 22px;box-shadow:0 25px 70px rgba(0,0,0,.55),0 0 0 1px rgba(255,59,22,.04);overflow:hidden}
+.card:after{content:"";position:absolute;left:-80px;right:-80px;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--orange),transparent);box-shadow:0 0 25px var(--orange)}
+.logo-wrap{background:#fff;border-radius:20px;padding:8px;margin:0 auto 16px;max-width:340px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.logo{display:block;width:100%;height:auto;border-radius:14px}
+.brand{font-size:28px;font-weight:900;letter-spacing:1px;margin-top:2px}
+.subtitle{margin:7px 0 18px;color:#b9bec5;font-size:15px;line-height:1.7}
+.location-box{display:flex;align-items:center;gap:10px;background:#0d1014;border:1px solid var(--line);border-radius:15px;padding:11px 13px;margin-bottom:14px;text-align:right}
+.dot{width:10px;height:10px;border-radius:50%;background:#ffb000;box-shadow:0 0 12px #ffb000;flex:none}
+.dot.ready{background:#20d66b;box-shadow:0 0 12px #20d66b}
+#status{font-size:13px;color:#c8ccd2;line-height:1.5}
+button{width:100%;border:0;border-radius:16px;padding:16px 14px;margin-top:11px;font-size:17px;font-weight:800;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+button:active{transform:scale(.985)}
+button:disabled{opacity:.42;cursor:not-allowed;transform:none}
+#whatsapp{background:linear-gradient(135deg,#20d66b,#0ca94f);color:#fff;box-shadow:0 10px 25px rgba(32,214,107,.18)}
+#sms{background:linear-gradient(135deg,#ff5a20,#e8320d);color:#fff;box-shadow:0 10px 25px rgba(255,59,22,.18)}
+.hint{margin:16px 4px 0;color:#777e87;font-size:12px;line-height:1.6}
+.footer{margin-top:16px;padding-top:13px;border-top:1px solid var(--line);font-size:11px;color:#656b73;letter-spacing:.4px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo-wrap"><img class="logo" src="aki-logo.jpg" alt="AKI DELIVERY"></div>
+  <div class="brand">إرسال موقعك</div>
+  <p class="subtitle">حدد موقعك بدقة، ثم اختر طريقة الإرسال إلى فريق AKI DELIVERY.</p>
+  <div class="location-box"><span id="dot" class="dot"></span><div id="status">جاري تحديد أفضل موقع GPS...</div></div>
+  <button id="whatsapp" disabled>🟢 إرسال عبر WhatsApp</button>
+  <button id="sms" disabled>💬 إرسال عبر الرسائل SMS</button>
+  <div class="hint">سيتم إرسال رابط Google Maps، رابط الاتجاه المباشر، الإحداثيات ودقة GPS التقريبية.</div>
+  <div class="footer">AKI DELIVERY • FAST • SAFE • ALWAYS ON TIME</div>
+</div>
+<script>
+const phone="213556911632";let bestPosition=null,watchId=null;
+const statusEl=document.getElementById("status"),dot=document.getElementById("dot"),buttons=[document.getElementById("whatsapp"),document.getElementById("sms")];
+function setButtons(enabled){buttons.forEach(b=>b.disabled=!enabled)}
+function updatePosition(position){if(!position||!position.coords)return;const a=position.coords.accuracy;if(!bestPosition||a<bestPosition.coords.accuracy){bestPosition=position;statusEl.textContent="تم تحديد الموقع • دقة تقريبية "+Math.round(a)+" متر"}if(a<=10&&watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null;dot.classList.add("ready");setButtons(true)}}
+function locationError(error){setButtons(false);if(error.code===1)statusEl.textContent="يرجى السماح بالوصول إلى الموقع ثم إعادة المحاولة.";else statusEl.textContent="تعذر تحديد الموقع. شغّل GPS ثم أعد تحميل الصفحة."}
+function startLocation(){if(!navigator.geolocation){statusEl.textContent="هذا المتصفح لا يدعم تحديد الموقع.";return}statusEl.textContent="جاري البحث عن أفضل قراءة GPS...";watchId=navigator.geolocation.watchPosition(updatePosition,locationError,{enableHighAccuracy:true,maximumAge:0,timeout:20000});setTimeout(()=>{if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null}if(bestPosition){dot.classList.add("ready");statusEl.textContent="الموقع جاهز • دقة GPS التقريبية: "+Math.round(bestPosition.coords.accuracy)+" متر";setButtons(true)}else statusEl.textContent="لم يتم الحصول على الموقع. أعد المحاولة."},20500)}
+function getMessage(){if(!bestPosition)return null;const lat=bestPosition.coords.latitude,lon=bestPosition.coords.longitude,a=Math.round(bestPosition.coords.accuracy);const maps="https://www.google.com/maps?q="+lat+","+lon;const dir="https://www.google.com/maps/dir/?api=1&destination="+lat+","+lon+"&travelmode=driving";return "📍 موقع زبون AKI DELIVERY\\n\\n🗺️ موقع الزبون:\\n"+maps+"\\n\\n🧭 الاتجاه المباشر:\\n"+dir+"\\n\\n📌 الإحداثيات:\\n"+lat+", "+lon+"\\n\\n📡 دقة GPS التقريبية:\\n"+a+" متر"}
+document.getElementById("whatsapp").addEventListener("click",()=>{const m=getMessage();if(!m){alert("انتظر حتى يتم تحديد الموقع.");return}const e=encodeURIComponent(m),intent="intent://send?phone="+phone+"&text="+e+"#Intent;scheme=whatsapp;package=com.whatsapp;end",app="whatsapp://send?phone="+phone+"&text="+e,web="https://wa.me/"+phone+"?text="+e;if(/Android/i.test(navigator.userAgent)){location.href=intent;setTimeout(()=>location.href=app,1200);setTimeout(()=>location.href=web,2500)}else{location.href=app;setTimeout(()=>location.href=web,1500)}});
+document.getElementById("sms").addEventListener("click",()=>{const m=getMessage();if(!m){alert("انتظر حتى يتم تحديد الموقع.");return}location.href="sms:+"+phone+"?body="+encodeURIComponent(m)});
+startLocation();
+</script>
+</body>
+</html>
